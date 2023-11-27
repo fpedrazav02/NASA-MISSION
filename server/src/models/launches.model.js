@@ -1,6 +1,6 @@
 const launches = new Map();
 
-const latestFlightNumber = 100;
+let latestFlightNumber = 100;
 
 const launch = {
   flightNumber: 100,
@@ -25,8 +25,8 @@ const launch2 = {
 };
 
 function addNewLaunch(launch) {
-  flightNumber++;
-  launches.set(flightNumber, Object.assign(launch, {
+  latestFlightNumber++;
+  launches.set(latestFlightNumber, Object.assign(launch, {
     flightNumber: latestFlightNumber,
     customer: ['Nasa'],
     upcoming: true,

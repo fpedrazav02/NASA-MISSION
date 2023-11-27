@@ -12,7 +12,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(planetsRouter);
-app.use(launchesRouter);
+app.use('/launches', launchesRouter);
 
 module.exports = {
   app,
