@@ -2,8 +2,7 @@
 const { getAllPlanets } = require('../../models/planets.model.js')
 
 async function httpGetAllPlanets(req, res) {
-
-  return res.status.json(await getAllPlanets());
+  return res.json(await getAllPlanets());
 };
 
 
