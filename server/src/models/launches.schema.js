@@ -18,9 +18,7 @@ const launchesSchema = new mongoose.Schema({
     required: true,
   },
   destination: {
-    type: mongoose.ObjectId,
-    ref: "Planet",
-    required: true,
+    type: String,
   },
   customer: {
     type: [String],

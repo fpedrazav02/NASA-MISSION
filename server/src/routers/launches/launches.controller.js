@@ -1,7 +1,15 @@
-const { launches, addNewLaunch, existsLaunchWithId, abortLaunchById } = require('../../models/launches.model');
+const {
+  launches,
+  addNewLaunch,
+  existsLaunchWithId,
+  abortLaunchById,
+  getAllLaunches,
+} = require("../../models/launches.model");
 
-function getAllLaunches(req, res) {
-  return res.status(200).json(Array.from(launches.values()));
+const launchesModel = require("../../models/launches.schema");
+
+async function httpGetAllLaunches(req, res) {
+  return res.status(200).json(await getAllLaunches());
 }
 
 function httpAddNewLaunch(req, res) {
@@ -28,6 +36,6 @@ function httpAbortLaunch(req, res) {
 
 module.exports = {
   httpAbortLaunch,
-  getAllLaunches,
+  httpGetAllLaunches,
   httpAddNewLaunch,
-}
+};
