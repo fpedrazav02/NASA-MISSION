@@ -1,4 +1,4 @@
-const launches = new Map();
+const axios = require("axios");
 const launchesModel = require("./launches.schema");
 const planets = require("./launches.schema");
 
@@ -24,7 +24,7 @@ async function saveLaunch(launch) {
     throw new Error("Oops! Planet could not be found!");
   }
 
-  await launchesModel.updateOne(
+  await launchesModel.findOneAndUpdate(
     {
       flightNumber: launch.flightNumber,
     },
@@ -47,33 +47,61 @@ async function getAllLaunches() {
   );
 }
 
-function existsLaunchWithId(launchId) {
-  return launches.has(launchId);
+async function getLastFlightNumber() {
+  const lastestLaunch = await launchesModel.findOne().sort("-flightNumber");
+
+  if (!lastestLaunch) {
+    return 100;
+  }
+  return lastestLaunch.flightNumber;
 }
 
-function addNewLaunch(launch) {
-  saveLaunch(launch);
-  // latestFlightNumber++;
-  // launches.set(
-  //   latestFlightNumber,
-  //   Object.assign(launch, {
-  //     flightNumber: latestFlightNumber,
-  //     customer: ["Nasa"],
-  //     upcoming: true,
-  //     success: true,
-  //   })
-  // );
+async function existsLaunchWithId(launchId) {
+  return await launchesModel.findOne({
+    flightNumber: launchId,
+  });
 }
 
-function abortLaunchById(launchId) {
-  const aborted = launches.get(launchId);
-  aborted.upcoming = false;
-  aborted.success = false;
+async function addNewLaunch(launch) {
+  const getLastestFlightNumber = (await getLastFlightNumber()) + 1;
 
-  return aborted;
+  const newLaunch = Object.assign(launch, {
+    customer: ["Nasa"],
+    upcoming: true,
+    success: true,
+    flightNumber: getLastestFlightNumber,
+  });
+  await saveLaunch(launch);
 }
 
-// launches.set(launch.flightNumber, launch);
+async function abortLaunchById(launchId) {
+  const aborted = await launchesModel.updateOne(
+    {
+      flightNumber: launchId,
+    },
+    {
+      upcoming: false,
+      success: false,
+    }
+  );
+  return aborted.ok === 1 && aborted.modifiedCount === 1;
+}
+
+const SPACE_X_URL = "https://api.spacexdata.com/v4/launches/query";
+
+async function loadLaunchesData() {
+  await axios.post(SPACE_X_URL, {
+    query: {},
+    options: {
+      populate: {
+        path: "rocket",
+        select: {
+          name: 1,
+        },
+      },
+    },
+  });
+}
 
 module.exports = {
   abortLaunchById,
@@ -81,4 +109,5 @@ module.exports = {
   launches,
   addNewLaunch,
   getAllLaunches,
+  loadLaunchesData,
 };
