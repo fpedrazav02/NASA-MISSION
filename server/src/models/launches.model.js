@@ -7,10 +7,10 @@ let latestFlightNumber = 100;
 const launch = {
   flightNumber: 100,
   mission: "Kepler Exploration X",
-  rocket: "Explorer IS1",
+  rocket: "Explorer IS1", //rocket.name
   launchDate: new Date("December 27, 2030"),
   destination: "Kepler-1652 b",
-  customer: ["Nasa"],
+  customers: ["Nasa"],
   upcoming: true,
   success: true,
 };
@@ -66,10 +66,11 @@ async function addNewLaunch(launch) {
   const getLastestFlightNumber = (await getLastFlightNumber()) + 1;
 
   const newLaunch = Object.assign(launch, {
-    customer: ["Nasa"],
+    customers: ["Nasa"],
     upcoming: true,
     success: true,
     flightNumber: getLastestFlightNumber,
+    destination: launch.target,
   });
   await saveLaunch(launch);
 }
@@ -90,7 +91,7 @@ async function abortLaunchById(launchId) {
 const SPACE_X_URL = "https://api.spacexdata.com/v4/launches/query";
 
 async function loadLaunchesData() {
-  await axios.post(SPACE_X_URL, {
+  const response = await axios.post(SPACE_X_URL, {
     query: {},
     options: {
       populate: {
@@ -99,14 +100,38 @@ async function loadLaunchesData() {
           name: 1,
         },
       },
+      populate: {
+        path: "payloads",
+        select: {
+          customers: 1,
+        },
+      },
     },
   });
+
+  const launchDocs = response.data.docs;
+  for (const launchDoc of launchDocs) {
+    const payloads = launchDoc["payloads"];
+    const customers = payloads.flatMap((payload) => {
+      return payload["customers"];
+    });
+
+    const launch = {
+      flightNumber: launchDoc["flight_number"],
+      mission: launchDoc["name"],
+      rocket: launchDoc["rocket"]["name"],
+      launchDate: launchDoc["data_local"],
+      upcoming: launchDoc["upcoming"],
+      succes: launchDoc["success"],
+      customers: customers,
+    };
+    saveLaunch(launch);
+  }
 }
 
 module.exports = {
   abortLaunchById,
   existsLaunchWithId,
-  launches,
   addNewLaunch,
   getAllLaunches,
   loadLaunchesData,

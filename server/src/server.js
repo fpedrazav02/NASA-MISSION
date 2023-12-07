@@ -7,7 +7,7 @@ const { loadLaunchesData } = require("./models/launches.model.js");
 
 const PORT = process.env.PORT || 8000;
 const MONGO_URL =
-  "mongodb+srv://dummyuser2:U5PD0VD4w00rIA8M@cluster0.nenauq6.mongodb.net/?retryWrites=true&w=majority";
+  "mongodb+srv://dummyuser3:1axggjtHuSWkWeaU@cluster0.nenauq6.mongodb.net/?retryWrites=true&w=majority";
 const server = http.createServer(app);
 
 mongoose.connection.once("open", () => {
