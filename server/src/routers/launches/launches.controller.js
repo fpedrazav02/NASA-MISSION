@@ -7,9 +7,11 @@ const {
 } = require("../../models/launches.model");
 
 const launchesModel = require("../../models/launches.schema");
+const { getPagination } = require("../../services/queries");
 
 async function httpGetAllLaunches(req, res) {
-  return res.status(200).json(await getAllLaunches());
+  const { skip, limit } = getPagination(req.query);
+  return res.status(200).json(await getAllLaunches(skip, limit));
 }
 
 async function httpAddNewLaunch(req, res) {

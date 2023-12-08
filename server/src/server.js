@@ -1,14 +1,15 @@
 const http = require("http");
 const mongoose = require("mongoose");
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "./.env") });
 
 const { app } = require("./app");
 const { loadPlanetsData } = require("./models/planets.model.js");
 const { loadLaunchesData } = require("./models/launches.model.js");
 
 const PORT = process.env.PORT || 8000;
-const MONGO_URL =
-  "mongodb+srv://dummyuser3:1axggjtHuSWkWeaU@cluster0.nenauq6.mongodb.net/?retryWrites=true&w=majority";
 const server = http.createServer(app);
+const MONGO_URL = process.env.MONGO_URL;
 
 mongoose.connection.once("open", () => {
   console.log("MongoDB is ON");
@@ -19,7 +20,7 @@ mongoose.connection.on("error", (err) => {
 });
 
 async function startServer() {
-  await mongoose.connect(MONGO_URL);
+  await mongoose.connect(process.env.MONGO_URL);
   await loadPlanetsData();
   await loadLaunchesData();
 

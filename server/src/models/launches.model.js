@@ -37,14 +37,20 @@ async function saveLaunch(launch) {
 
 saveLaunch(launch);
 
-async function getAllLaunches() {
-  return await launchesModel.find(
-    {},
-    {
-      __v: 0,
-      __id: 0,
-    }
-  );
+async function getAllLaunches(skip, limit) {
+  return await launchesModel
+    .find(
+      {},
+      {
+        __v: 0,
+        __id: 0,
+      }
+    )
+    .skip(skip)
+    .limit(limit)
+    .sort({
+      flightNumber: 1,
+    });
 }
 
 async function getLastFlightNumber() {
@@ -90,10 +96,24 @@ async function abortLaunchById(launchId) {
 
 const SPACE_X_URL = "https://api.spacexdata.com/v4/launches/query";
 
+async function findLaunch(filter) {
+  return await launchesModel.findOne(filter);
+}
+
 async function loadLaunchesData() {
+  const firstLaunch = await findLaunch({
+    flightNumber: 1,
+    rocket: "Falcon 1",
+    mission: "FalconSat",
+  });
+
+  if (firstLaunch) {
+    return;
+  }
   const response = await axios.post(SPACE_X_URL, {
     query: {},
     options: {
+      pagination: false,
       populate: {
         path: "rocket",
         select: {
